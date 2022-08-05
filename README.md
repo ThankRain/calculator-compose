@@ -12,8 +12,14 @@
 
 ## 界面预览
 
-![界面预览1](img/1.png)![界面预览2](img/2.png)
-![界面预览3](img/3.png)![界面预览4](img/4.png)
+<center class="half">
+     <img src="img/1.png" width="200"/>
+     <img src="img/2.png" width="200"/>
+</center>
+<center>
+     <img src="img/3.png" width="200"/>
+     <img src="img/4.png" width="200"/>
+</center>
 
 ## 开源许可
 
