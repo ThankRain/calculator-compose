@@ -1,4 +1,4 @@
-# calculator-compose
+# 计算器 Based on compose
 
 🍉Jetpack Compose构建，基于逆波兰表达式的完整四则运算器
 
