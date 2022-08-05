@@ -1,4 +1,4 @@
-# calculator-compose
+# 计算器 Based on compose
 
 🍉Jetpack Compose构建，基于逆波兰表达式的完整四则运算器
 
@@ -12,12 +12,9 @@
 
 ## 界面预览
 
-<center class="half">
-     <img src="img/1.png" width="200"/><img src="img/2.png" width="200"/>
-</center>
-<center>
-     <img src="img/3.png" width="200"/><img src="img/4.png" width="200"/>
-</center>
+<img src="img/1.png" width="200"/><img src="img/2.png" width="200"/>  
+
+<img src="img/4.png" width="400"/>
 
 ## 开源许可
 
