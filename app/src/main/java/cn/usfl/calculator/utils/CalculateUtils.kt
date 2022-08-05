@@ -83,7 +83,7 @@ object CalculateUtils {
             numberStack.push(java.lang.String.valueOf(operatorStack.pop()))
         }
         //调用逆波兰表达式计算函数，返回计算结果
-        return DecimalFormat("#.##########").format(calculateRPN(numberStack))
+        return DecimalFormat("#.######").format(calculateRPN(numberStack))
     }
 
     // 计算逆波兰表达式并返回最终结果

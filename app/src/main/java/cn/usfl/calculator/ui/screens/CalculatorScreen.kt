@@ -1,6 +1,5 @@
 package cn.usfl.calculator.ui.screens
 
-import android.content.res.Configuration
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,9 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,22 +20,65 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import cn.usfl.calculator.R
 import cn.usfl.calculator.ui.theme.Gap
 import cn.usfl.calculator.ui.theme.colors
+import cn.usfl.calculator.ui.vm.CalculateViewModel
 import cn.usfl.calculator.ui.widgets.StaggeredVerticalGrid
+import cn.usfl.calculator.utils.isPortrait
 
 
 @Composable
-fun CalculatorScreen() {
+fun CalculatorScreen(
+    vm: CalculateViewModel
+) {
     //当前计算的算式
-    val formula = remember { mutableStateOf("") }
+    val formula = remember { vm.formula }
     //历史记录
-    val history = remember { mutableStateListOf<String>() }
+    val history = remember { vm.history }
+    if (isPortrait) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(colors.background)
+        ) {
+            ScreenPart(
+                modifier = Modifier.weight(1f),
+                formula = formula,
+                history = history
+            )
+            OperationPart(Modifier.weight(1f), formula = formula, history = history)
+        }
+    } else {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .background(colors.background)
+        ) {
+            ScreenPart(
+                modifier = Modifier.weight(6f),
+                formula = formula,
+                history = history
+            )
+            OperationPart(modifier = Modifier.weight(4f), formula = formula, history = history)
+        }
+    }
+}
+
+/**
+ * 算式显示区域
+ * @param formula 当前算式
+ * @param history 历史记录
+ */
+@Composable
+private fun ScreenPart(
+    modifier: Modifier = Modifier,
+    formula: MutableState<String>,
+    history: SnapshotStateList<String>
+) {
     Column(
-        Modifier
+        modifier
             .fillMaxSize()
             .background(colors.background)
     ) {
@@ -50,7 +92,7 @@ fun CalculatorScreen() {
         //计算区域
         LazyColumn(
             Modifier
-                .background(colors.surface)
+                .background(colors.background)
                 .fillMaxWidth()
                 .weight(1f),
             reverseLayout = true,
@@ -66,7 +108,8 @@ fun CalculatorScreen() {
                     fontWeight = FontWeight.Bold
                 )
             }
-            items(history) {
+            //历史记录
+            items(history.reversed()) {
                 Text(
                     text = it,
                     modifier = Modifier.fillMaxWidth(),
@@ -78,29 +121,46 @@ fun CalculatorScreen() {
             }
         }
         //按键区域
-        StaggeredVerticalGrid(maxRows = 4) {
-            buttons.forEach {
-                CalculateButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(it.text),
-                    fontColor = when (it.fontColor) {
-                        ColorType.Accent -> colors.primary//文字强调色
-                        ColorType.Normal -> colors.onBackground
-                        ColorType.OnAccent -> colors.onPrimary
-                    },
-                    backgroundColor = when (it.backgroundColor) {
-                        ColorType.Accent -> colors.primary
-                        else -> colors.background
-                    },
-                ) {
-                    it.onClick(formula) { new ->
-                        //提交计算结果，将其纳入历史记录
-                        if (new != null) {
-                            history.add(new)
-                        } else {
-                            //清空历史记录
-                            history.clear()
-                        }
+    }
+}
+
+/**
+ * 按键操作区域
+ * @param formula 当前算式
+ * @param history 历史记录
+ */
+@Composable
+fun OperationPart(
+    modifier: Modifier = Modifier,
+    formula: MutableState<String>,
+    history: SnapshotStateList<String>
+) {
+    StaggeredVerticalGrid(
+        modifier = modifier, maxRows = 4, maxColumns = 5
+    ) {
+        buttons.forEach {
+            CalculateButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f, true),
+                text = stringResource(it.text),
+                fontColor = when (it.fontColor) {
+                    ColorType.Accent -> colors.primary//文字强调色
+                    ColorType.Normal -> colors.onBackground
+                    ColorType.OnAccent -> colors.onPrimary
+                },
+                backgroundColor = when (it.backgroundColor) {
+                    ColorType.Accent -> colors.primary
+                    else -> colors.background
+                },
+            ) {
+                it.onClick(formula) { new ->
+                    //提交计算结果，将其纳入历史记录
+                    if (new != null) {
+                        history.add(new)
+                    } else {
+                        //清空历史记录
+                        history.clear()
                     }
                 }
             }
@@ -129,7 +189,7 @@ fun CalculateButton(
     ) {
         Box(
             Modifier
-                .padding(horizontal = Gap.Big, vertical = Gap.Mid)
+                .padding(horizontal = Gap.Mid, vertical = Gap.Small)
                 .aspectRatio(1f, true)
                 .clip(RoundedCornerShape(50))
                 .background(
@@ -153,12 +213,3 @@ fun CalculateButton(
     }
 }
 
-@Preview(
-    device = "spec:width=1440px,height=3040px,dpi=560,isRound=true",
-    backgroundColor = 0xFFFFFFFF,
-    uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL
-)
-@Composable
-fun CalculatorScreenPreview() {
-    CalculatorScreen()
-}

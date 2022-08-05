@@ -9,6 +9,7 @@ import androidx.compose.ui.layout.Layout
 fun StaggeredVerticalGrid(
     modifier: Modifier = Modifier,
     maxRows: Int,
+    maxColumns: Int,
     content: @Composable () -> Unit
 ) {
     Layout(
@@ -19,43 +20,26 @@ fun StaggeredVerticalGrid(
             "Unbounded width not supported"
         }
         val columnWidth = constraints.maxWidth / maxRows
-        val itemConstraints = constraints.copy(minWidth = 0, maxWidth = columnWidth)
-        val colHeights = IntArray(maxRows) { 0 } // track each column's height
+        val columnHeight = constraints.maxHeight / maxColumns
+        val itemConstraints = constraints.copy(
+            minWidth = 0,
+            maxWidth = columnWidth,
+            minHeight = 0,
+            maxHeight = columnHeight
+        )
         val placeableList = measurableList.map { measurable ->
-            val column = shortestColumn(colHeights)
-            val placeable = measurable.measure(itemConstraints)
-            colHeights[column] += placeable.height
-            placeable
+            measurable.measure(itemConstraints)
         }
-
-        val height = colHeights.maxOrNull()?.coerceIn(constraints.minHeight, constraints.maxHeight)
-            ?: constraints.minHeight
         layout(
             width = constraints.maxWidth,
-            height = height
+            height = constraints.maxHeight
         ) {
-            val colY = IntArray(maxRows) { 0 }
-            placeableList.forEach { placeable ->
-                val column = shortestColumn(colY)
+            placeableList.forEachIndexed { index, placeable ->
                 placeable.place(
-                    x = columnWidth * column,
-                    y = colY[column]
+                    x = columnWidth * (index % maxRows),
+                    y = columnHeight * (index / maxRows)
                 )
-                colY[column] += placeable.height
             }
         }
     }
 }
-
-private fun shortestColumn(colHeights: IntArray): Int {
-    var minHeight = Int.MAX_VALUE
-    var column = 0
-    colHeights.forEachIndexed { index, height ->
-        if (height < minHeight) {
-            minHeight = height
-            column = index
-        }
-    }
-    return column
-}
-

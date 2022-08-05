@@ -19,6 +19,7 @@ private val DarkColorPalette = darkColors(
     primaryVariant = Purple700,
     secondary = Teal200,
     surface = Color(0xFF333333),
+    onSecondary = Color(0xFFCCCCCC)
 )
 
 private val LightColorPalette = lightColors(
@@ -26,6 +27,7 @@ private val LightColorPalette = lightColors(
     primaryVariant = Purple700,
     secondary = Teal200,
     surface = Color(0xFFF1F1F1),
+    onSecondary = Color(0xFF999999)
 )
 
 var LocalAppColors = compositionLocalOf {
